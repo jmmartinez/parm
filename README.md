@@ -1,10 +1,10 @@
 # PARM
 
-Bunch of scripts to create slides with Marp (*TODO link to marp's github*).
+Bunch of scripts to create slides with Marp (https://github.com/marp-team/marp).
 
 ## CMake Integration
 
-```
+```cmake
 find_package(Marp REQUIRED)
 marp_slides(slides
             INPUT slides.md
@@ -16,7 +16,7 @@ marp_slides(slides
 
 ### Generate text
 
-```
+```python
 </python
   for i in range(0,4):
     print("This is a line {0}".format(i))
@@ -25,14 +25,13 @@ marp_slides(slides
 
 ### Inline files 
 
-```
+```python
 </python inline_file("source_code.c") />
 ```
 
 ### Launch external commands 
 
-```
-</python
+```python
 run_command("ls")
 />
 ```

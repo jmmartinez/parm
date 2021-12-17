@@ -1,9 +1,18 @@
-find_package(Python REQUIRED)
+find_package(Python3 REQUIRED)
 
 set(MARP_CLI_EXECUTABLE "" CACHE FILEPATH "Path to Marp executable.")
 
 if(NOT MARP_CLI_EXECUTABLE)
-  message(FATAL_ERROR "Bad path to MARP_CLI_EXECUTABLE=\"${MARP_CLI_EXECUTABLE}\"")
+  include(FetchContent)
+
+  set(MARP_CLI_VERSION 1.5.0)
+  set(MARP_CLI_URL "https://github.com/marp-team/marp-cli/releases/download/v${MARP_CLI_VERSION}/marp-cli-v${MARP_CLI_VERSION}-linux.tar.gz")
+
+  FetchContent_Declare(download_marp-cli
+    URL "${MARP_CLI_URL}"
+  )
+  FetchContent_MakeAvailable(download_marp-cli)
+  set(MARP_CLI_EXECUTABLE "${download_marp-cli_SOURCE_DIR}/marp")
 endif()
 
 execute_process(COMMAND ${MARP_CLI_EXECUTABLE} --version 
@@ -26,13 +35,13 @@ endfunction()
 
 function(marp_slides MARP_OUTPUT ARGS)
   cmake_parse_arguments(PARSE_ARGV 1 MARP "" "INPUT;TARGET" "DEPENDS")
+  set(PYTHON_SCRIPTS_LOCATION ${CMAKE_CURRENT_FUNCTION_LIST_DIR}/marp_python)
 
   # first pass the python templating script
   add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${MARP_OUTPUT}.md
-                     COMMAND cat ${MARP_INPUT} | ${Python_EXECUTABLE} ${PROJECT_SOURCE_DIR}/cmake/marp_python/include.py > ${CMAKE_CURRENT_BINARY_DIR}/${MARP_OUTPUT}_0.md
-                     COMMAND cat ${MARP_INPUT} | ${Python_EXECUTABLE} ${PROJECT_SOURCE_DIR}/cmake/marp_python/python.py > ${CMAKE_CURRENT_BINARY_DIR}/${MARP_OUTPUT}.md
-                     MAIN_DEPENDENCY ${MARP_INPUT}
-                     DEPENDS ${MARP_DEPENDS} ${PROJECT_SOURCE_DIR}/python/python.py
+                     COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/${MARP_INPUT} | ${Python3_EXECUTABLE} ${PYTHON_SCRIPTS_LOCATION}/python.py > ${CMAKE_CURRENT_BINARY_DIR}/${MARP_OUTPUT}.md
+                     MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/${MARP_INPUT}
+                     DEPENDS ${MARP_DEPENDS} ${PYTHON_SCRIPTS_LOCATION}/python.py
                      COMMENT "Running scripts for ${MARP_INPUT}")
 
   # then generate the pdf with marp

@@ -32,6 +32,7 @@ marp_slides(slides
 ### Launch external commands 
 
 ```python
+</python
 run_command("ls")
 />
 ```
